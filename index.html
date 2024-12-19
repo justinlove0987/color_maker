@@ -27,29 +27,45 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #ccc;
+            background-color: #000;
             width: 100%;
             height: 100%;
             position: relative;
-            font-size: 150px;
-            color: black;
+            color: white;
+            font-size: 48px;
             font-weight: bold;
-            font-family: 'Arial Black', sans-serif;
-            text-shadow: none;
         }
 
-        .history {
+        .end-container {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .end-message {
+            font-size: 36px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .history {
             font-size: 24px;
-            display: none;
-            background-color: rgba(255, 255, 255, 0.8);
+            color: white;
+            background-color: rgba(0, 0, 0, 0.8);
             padding: 20px;
             border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            display: none;
         }
     </style>
 </head>
@@ -57,23 +73,28 @@
     <div class="color-display" id="colorDisplay"></div>
 
     <div class="settings">
+        <label for="interval">黑色顯示間隔 (秒)：</label>
+        <input type="number" id="interval" min="0.1" step="0.1" value="0.5"><br><br>
+
         <label for="colorCount">顏色數量：</label>
         <input type="number" id="colorCount" min="1" value="5"><br><br>
-
-        <label for="interval">顏色出現間隔 (秒)：</label>
-        <input type="number" id="interval" min="0.1" step="0.1" value="0.5"><br><br>
 
         <button id="startButton">開始</button>
         <button id="showAnswerButton">顯示答案</button>
     </div>
 
-    <div class="history" id="history"></div>
+    <div class="end-container" id="endContainer" style="display: none;">
+        <div class="end-message" id="endMessage">所有顏色顯示完畢！</div>
+        <div class="history" id="history"></div>
+    </div>
 
     <script>
         const startButton = document.getElementById('startButton');
         const showAnswerButton = document.getElementById('showAnswerButton');
         const colorDisplay = document.getElementById('colorDisplay');
         const historyDiv = document.getElementById('history');
+        const endContainer = document.getElementById('endContainer');
+        const endMessage = document.getElementById('endMessage');
         const colors = ['紅', '白', '黃', '藍'];
         const colorHex = {
             '紅': 'red',
@@ -86,14 +107,15 @@
         let intervalId = null;
 
         startButton.addEventListener('click', () => {
-            const colorCount = parseInt(document.getElementById('colorCount').value);
             const interval = parseFloat(document.getElementById('interval').value) * 1000;
+            const colorCount = parseInt(document.getElementById('colorCount').value);
 
             colorSequence = [];
             let index = 0;
+            endContainer.style.display = 'none';
             historyDiv.style.display = 'none';
-            colorDisplay.style.backgroundColor = '';
-            colorDisplay.textContent = '';
+            colorDisplay.style.backgroundColor = '#000'; // Start with black
+            // colorDisplay.style.backgroundImage = "url('https://images.unsplash.com/photo-1485842295075-1c7b2037114c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YnV0dGVyZmx5JTIwdXJsfGVufDB8fDB8fHww')"; // Start with a butterfly background
 
             // Clear any existing interval
             if (intervalId) {
@@ -102,15 +124,21 @@
 
             intervalId = setInterval(() => {
                 if (index < colorCount) {
-                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                    colorSequence.push(randomColor);
-                    colorDisplay.style.backgroundColor = colorHex[randomColor];
-                    colorDisplay.textContent = index + 1; // Display the count in the center
+                    // Transition to black for the specified interval before showing the next color
+                    colorDisplay.style.backgroundColor = '#000';
+
+                    setTimeout(() => {
+                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                        colorSequence.push(randomColor);
+                        colorDisplay.style.backgroundColor = colorHex[randomColor];
+                    }, interval); // Black duration matches the interval
+
                     index++;
                 } else {
                     clearInterval(intervalId); // Stop the interval when done
+                    endContainer.style.display = 'flex'; // Show end message
                 }
-            }, interval);
+            }, interval * 2); // Total interval is twice the black duration
         });
 
         showAnswerButton.addEventListener('click', () => {
