@@ -1,17 +1,78 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2487.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000}
-    span.s1 {font-kerning: none}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Blocks</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #color-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .color-block {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+        }
+        #button-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<p class="p1"><span class="s1">Hello dog!</span></p>
+    <div id="color-container"></div>
+    <div id="button-container">
+        <button id="add-button">加入</button>
+        <button id="toggle-button">隱藏</button>
+    </div>
+
+    <script>
+        const colors = ["red", "yellow", "white", "blue"];
+        const colorContainer = document.getElementById("color-container");
+        const addButton = document.getElementById("add-button");
+        const toggleButton = document.getElementById("toggle-button");
+
+        let isHidden = false;
+
+        // 加入顏色方塊
+        addButton.addEventListener("click", () => {
+            const existingBlocks = colorContainer.children;
+            // 隨機更新已存在的方塊顏色
+            for (let block of existingBlocks) {
+                block.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            }
+            // 新增三個新的方塊
+            for (let i = 0; i < 3; i++) {
+                const colorBlock = document.createElement("div");
+                colorBlock.className = "color-block";
+                colorBlock.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                colorContainer.appendChild(colorBlock);
+            }
+        });
+
+        // 隱藏或顯示顏色方塊
+        toggleButton.addEventListener("click", () => {
+            isHidden = !isHidden;
+            colorContainer.style.display = isHidden ? "none" : "flex";
+        });
+    </script>
 </body>
 </html>
