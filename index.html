@@ -3,75 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Blocks</title>
+    <title>顏色出現設定</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: Arial, sans-serif;
             margin: 0;
-        }
-        #color-container {
+            padding: 0;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .settings {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .color-display {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            background-color: #ccc;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            font-size: 150px;
+            color: black;
+            font-weight: bold;
+            font-family: 'Arial Black', sans-serif;
+            text-shadow: none;
         }
-        .color-block {
-            width: 50px;
-            height: 50px;
-            border: 1px solid black;
-        }
-        #button-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
+
+        .history {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            display: none;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
-    <div id="color-container"></div>
-    <div id="button-container">
-        <button id="add-button">加入</button>
-        <button id="toggle-button">隱藏</button>
+    <div class="color-display" id="colorDisplay"></div>
+
+    <div class="settings">
+        <label for="colorCount">顏色數量：</label>
+        <input type="number" id="colorCount" min="1" value="5"><br><br>
+
+        <label for="interval">顏色出現間隔 (秒)：</label>
+        <input type="number" id="interval" min="0.1" step="0.1" value="0.5"><br><br>
+
+        <button id="startButton">開始</button>
+        <button id="showAnswerButton">顯示答案</button>
     </div>
 
+    <div class="history" id="history"></div>
+
     <script>
-        const colors = ["red", "yellow", "white", "blue"];
-        const colorContainer = document.getElementById("color-container");
-        const addButton = document.getElementById("add-button");
-        const toggleButton = document.getElementById("toggle-button");
+        const startButton = document.getElementById('startButton');
+        const showAnswerButton = document.getElementById('showAnswerButton');
+        const colorDisplay = document.getElementById('colorDisplay');
+        const historyDiv = document.getElementById('history');
+        const colors = ['紅', '白', '黃', '藍'];
+        const colorHex = {
+            '紅': 'red',
+            '白': 'white',
+            '黃': 'yellow',
+            '藍': 'blue'
+        };
 
-        let isHidden = false;
+        let colorSequence = [];
+        let intervalId = null;
 
-        // 加入顏色方塊
-        addButton.addEventListener("click", () => {
-            const existingBlocks = colorContainer.children;
-            // 隨機更新已存在的方塊顏色
-            for (let block of existingBlocks) {
-                block.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        startButton.addEventListener('click', () => {
+            const colorCount = parseInt(document.getElementById('colorCount').value);
+            const interval = parseFloat(document.getElementById('interval').value) * 1000;
+
+            colorSequence = [];
+            let index = 0;
+            historyDiv.style.display = 'none';
+            colorDisplay.style.backgroundColor = '';
+            colorDisplay.textContent = '';
+
+            // Clear any existing interval
+            if (intervalId) {
+                clearInterval(intervalId);
             }
-            // 新增三個新的方塊
-            for (let i = 0; i < 3; i++) {
-                const colorBlock = document.createElement("div");
-                colorBlock.className = "color-block";
-                colorBlock.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                colorContainer.appendChild(colorBlock);
-            }
+
+            intervalId = setInterval(() => {
+                if (index < colorCount) {
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    colorSequence.push(randomColor);
+                    colorDisplay.style.backgroundColor = colorHex[randomColor];
+                    colorDisplay.textContent = index + 1; // Display the count in the center
+                    index++;
+                } else {
+                    clearInterval(intervalId); // Stop the interval when done
+                }
+            }, interval);
         });
 
-        // 隱藏或顯示顏色方塊
-        toggleButton.addEventListener("click", () => {
-            isHidden = !isHidden;
-            colorContainer.style.display = isHidden ? "none" : "flex";
+        showAnswerButton.addEventListener('click', () => {
+            historyDiv.innerHTML = `出現的顏色順序：${colorSequence.join('、')}`;
+            historyDiv.style.display = 'block';
         });
     </script>
 </body>
